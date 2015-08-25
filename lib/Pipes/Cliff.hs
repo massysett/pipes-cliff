@@ -1,3 +1,4 @@
+{-# LANGUAGE Trustworthy #-}
 -- | Spawn subprocesses and interact with them using "Pipes"
 --
 -- The interface in this module deliberately resembles the interface
@@ -56,7 +57,7 @@ module Pipes.Cliff
 
   -- * Creating processes
   -- $process
-  
+
   , pipeInput
   , pipeOutput
   , pipeError
@@ -75,7 +76,7 @@ module Pipes.Cliff
   , isStillRunning
   , waitForProcess
   , terminateProcess
-  
+
   -- * Exception safety
 
   -- | These are some simple combinators built with
@@ -104,11 +105,11 @@ module Pipes.Cliff
   -- $designNotes
   ) where
 
-import Control.Concurrent.Async
-import Pipes.Cliff.Core
-import Pipes
+import safe Control.Concurrent.Async
+import safe Pipes.Cliff.Core
+import safe Pipes
 import Pipes.Safe (runSafeT)
-import System.Exit
+import safe System.Exit
 
 {- $process
 

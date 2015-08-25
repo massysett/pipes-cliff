@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleContexts, RankNTypes #-}
+{-# LANGUAGE FlexibleContexts, RankNTypes, Trustworthy #-}
 
 -- | This contains the innards of Cliff.
 -- You shouldn't need anything that's in this module; instead, use
@@ -14,22 +14,22 @@
 
 module Pipes.Cliff.Core where
 
-import System.Environment
-import Data.List (intersperse)
-import Control.Exception (IOException)
-import System.IO
-import qualified System.Process as Process
-import Pipes
+import safe System.Environment
+import safe Data.List (intersperse)
+import safe Control.Exception (IOException)
+import safe System.IO
+import safe qualified System.Process as Process
+import safe Pipes
 import Pipes.Safe
-import qualified Data.ByteString as BS
-import Data.ByteString (ByteString)
-import Control.Concurrent (forkIO)
-import Control.Concurrent.Async
-import Control.Concurrent.MVar
-import System.Exit
-import qualified Control.Exception
-import Control.Monad
-import Control.Concurrent.STM
+import safe qualified Data.ByteString as BS
+import safe Data.ByteString (ByteString)
+import safe Control.Concurrent (forkIO)
+import safe Control.Concurrent.Async
+import safe Control.Concurrent.MVar
+import safe System.Exit
+import safe qualified Control.Exception
+import safe Control.Monad
+import safe Control.Concurrent.STM
 
 -- * Data types
 
@@ -349,7 +349,7 @@ once act = do
             return x
       return (Just b, r)
     Just b -> return (Just b, waitBarrier b)
-    
+
 -- * Mailboxes
 
 -- | Creates a new mailbox.  Returns an action to send to the mailbox;
@@ -363,7 +363,7 @@ messageBox = atomically $ do
   locked <- newTVar False
   mailbox <- newEmptyTMVar
   return (sendBox locked mailbox, recvBox locked mailbox, sealer locked)
-  
+
 sendBox :: TVar Bool -> TMVar a -> a -> STM Bool
 sendBox locked mailbox a = do
   isLocked <- readTVar locked
@@ -383,7 +383,7 @@ recvBox locked mailbox = do
       if isLocked
         then return Nothing
         else retry
-    
+
 sealer :: TVar Bool -> STM ()
 sealer locked = writeTVar locked True
 
@@ -393,7 +393,7 @@ produceFromBox stm = do
   case mayV of
     Nothing -> return ()
     Just v -> yield v >> produceFromBox stm
-    
+
 sendToBox :: MonadIO m => (a -> STM Bool) -> Consumer a m ()
 sendToBox stm = do
   v <- await
@@ -422,7 +422,7 @@ data Console = Console
   -- ^ Each time a resource is created, register a finalizer here.
   -- These finalizers are run when 'terminateProcess' is run.
   }
-  
+
 
 -- | Is this process still running?
 --
@@ -440,12 +440,12 @@ data ProcessHandle = ProcessHandle
   { phCreateProcess :: CreateProcess
   , phConsole :: IO Console
   }
-  
+
 -- | Tells you the 'CreateProcess' that was originally used to create
 -- the process associated with this 'ProcessHandle'.
 originalCreateProcess :: ProcessHandle -> CreateProcess
 originalCreateProcess = phCreateProcess
-  
+
 -- | Add a finalizer to the ProcessHandle.  When the finalizers are run, all
 -- exceptions are ignored, except asynchronous exceptions, which are
 -- masked.
@@ -517,7 +517,7 @@ newProcessHandle inp out err cp = liftM2 ProcessHandle (return cp) (once act)
       lock <- newLock
       rlsrs <- newVar destroyers
       return $ Console inp' out' err' han getCode lock rlsrs
-      
+
 
 -- * Exception handling
 
@@ -711,7 +711,7 @@ finishProxy
 finishProxy thread pnl = do
   _ <- wait thread
   waitForProcess pnl
-  
+
 -- | Takes all steps necessary to get a 'Consumer' for standard
 -- input:
 --
@@ -799,7 +799,7 @@ pipeInput out err cp = mask_ $ do
   pnl <- newProcessHandle Nothing (Just out) (Just err) cp
   let inp = runInputHandle pnl
   return (inp, pnl)
-    
+
 
 -- | Create a 'Producer' for standard output.
 pipeOutput
