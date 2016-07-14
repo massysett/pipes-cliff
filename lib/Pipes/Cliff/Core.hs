@@ -275,6 +275,11 @@ convertCreateProcess inp out err a = Process.CreateProcess
   , Process.close_fds = close_fds a
   , Process.create_group = create_group a
   , Process.delegate_ctlc = delegate_ctlc a
+  , Process.new_session = False
+  , Process.child_user   = Nothing
+  , Process.child_group  = Nothing
+  , Process.detach_console = False
+  , Process.create_new_console = False
   }
   where
     conv = convertNonPipe
