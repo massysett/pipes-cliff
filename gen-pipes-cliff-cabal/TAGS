@@ -1,22 +1,0 @@
-
-./gen-pipes-cliff-cabal.hs,465
-module Main Main0,1
-version version4,5
-version version5,6
-properties properties7,8
-properties properties8,9
-ghcOptions ghcOptions51,52
-ghcOptions ghcOptions52,53
-commonOptions commonOptions56,57
-commonOptionscommonOptions57,58
-exeOptions exeOptions70,71
-testExe testExe87,88
-sections sections102,103
-libraryDepends libraryDepends108,109
-libraryDepends libraryDepends109,110
-library library123,124
-main main128,129
-main main129,130
-
-./Setup.hs,15
-main main1,2

@@ -108,13 +108,14 @@ sections fl libMods testMods =
 
 libraryDepends :: [Cartel.Package]
 libraryDepends =
-  [ Cartel.closedOpen "base" [4,8] [5]
+  [ Cartel.closedOpen "base" [4,9] [5]
   , Cartel.atLeast "pipes" [4,1]
   , Cartel.atLeast "pipes-safe" [2,2]
   , Cartel.atLeast "bytestring" [0,10,4]
   , Cartel.atLeast "process" [1,2,0,0]
   , Cartel.atLeast "async" [2,0]
   , Cartel.atLeast "stm" [2,4,4]
+  , Cartel.atLeast "unix" [2,7,2]
   ]
 
 library

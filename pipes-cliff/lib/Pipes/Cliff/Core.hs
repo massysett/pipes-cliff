@@ -30,6 +30,7 @@ import System.Exit
 import qualified Control.Exception
 import Control.Monad
 import Control.Concurrent.STM
+import qualified System.Posix as Px
 
 -- * Data types
 
@@ -196,11 +197,11 @@ data CreateProcess = CreateProcess
   -- ^ Use posix setsid to start the new process in a new session;
   -- does nothing on other platforms.
 
-  , child_group :: Maybe GroupID
+  , child_group :: Maybe Px.GroupID
   -- ^ Use posix setgid to set child process's group id; does nothing
   -- on other platforms.
 
-  , child_user :: Maybe UserID
+  , child_user :: Maybe Px.UserID
   -- ^Use posix setuid to set child process's user id; does nothing on other platforms. 
 
   , handler :: Oopsie -> IO ()
@@ -258,7 +259,10 @@ squelch = const (return ())
 --
 -- * no new process group is created
 --
--- * 'delegate_ctlc' is 'False'
+-- * 'delegate_ctlc', 'detach_console', 'create_new_console', and
+-- 'new_session' are all 'False'
+--
+-- * 'child_group' and 'child_user' are both 'Nothing'
 --
 -- * 'handler' is 'defaultHandler'
 
@@ -275,6 +279,11 @@ procSpec prog args = CreateProcess
   , close_fds = False
   , create_group = False
   , delegate_ctlc = False
+  , detach_console = False
+  , create_new_console = False
+  , new_session = False
+  , child_group = Nothing
+  , child_user = Nothing
   , handler = defaultHandler
   }
 
@@ -294,6 +303,11 @@ convertCreateProcess inp out err a = Process.CreateProcess
   , Process.close_fds = close_fds a
   , Process.create_group = create_group a
   , Process.delegate_ctlc = delegate_ctlc a
+  , Process.detach_console = detach_console a
+  , Process.create_new_console = create_new_console a
+  , Process.new_session = new_session a
+  , Process.child_group = child_group a
+  , Process.child_user = child_user a
   }
   where
     conv = convertNonPipe
@@ -648,7 +662,7 @@ bufSize = 1024
 -- effect, the IO action creating the 'ProcessHandle' is viewed, meaning that
 -- the process will launch if it hasn't already done so.
 initHandle
-  :: (MonadSafe mi, MonadCatch (Base mi))
+  :: MonadSafe mi
   => HandleDesc
   -- ^ Used for error messages
   -> (Console -> Handle)
@@ -762,7 +776,7 @@ finishProxy thread pnl = do
 -- if the 'Proxy' has shut down.  Let the thread terminate through
 -- mailbox closure or a broken pipe.
 runInputHandle
-  :: (MonadSafe mi, MonadCatch (Base mi))
+  :: MonadSafe mi
   => ProcessHandle
   -- ^
   -> Consumer ByteString mi ExitCode
@@ -781,7 +795,7 @@ runInputHandle pnl = mask $ \restore -> do
 -- input.  Sets up a mailbox, runs a conveyor in the background.  Then
 -- receives streaming data, and then gets the process exit code.
 runOutputHandle
-  :: (MonadSafe mi, MonadCatch (Base mi))
+  :: MonadSafe mi
   => Outbound
   -- ^
   -> ProcessHandle
@@ -802,7 +816,7 @@ runOutputHandle outb pnl = mask $ \restore -> do
 
 -- | Create a 'Consumer' for standard input.
 pipeInput
-  :: (MonadSafe mi, MonadCatch (Base mi))
+  :: MonadSafe mi
 
   => NonPipe
   -- ^ Standard output
@@ -822,7 +836,7 @@ pipeInput out err cp = mask_ $ do
 
 -- | Create a 'Producer' for standard output.
 pipeOutput
-  :: (MonadSafe mo, MonadCatch (Base mo))
+  :: MonadSafe mo
 
   => NonPipe
   -- ^ Standard input
@@ -842,7 +856,7 @@ pipeOutput inp err cp = mask_ $ do
 
 -- | Create a 'Producer' for standard error.
 pipeError
-  :: (MonadSafe me, MonadCatch (Base me))
+  :: MonadSafe me
 
   => NonPipe
   -- ^ Standard input
@@ -863,8 +877,7 @@ pipeError inp out cp = mask_ $ do
 -- | Create a 'Consumer' for standard input and a 'Producer' for
 -- standard output.
 pipeInputOutput
-  :: ( MonadSafe mi, MonadCatch (Base mi),
-       MonadSafe mo, MonadCatch (Base mo))
+  :: (MonadSafe mi, MonadSafe mo)
 
   => NonPipe
   -- ^ Standard error
@@ -886,8 +899,7 @@ pipeInputOutput err cp = mask_ $ do
 -- | Create a 'Consumer' for standard input and a 'Producer' for
 -- standard error.
 pipeInputError
-  :: ( MonadSafe mi, MonadCatch (Base mi),
-       MonadSafe me, MonadCatch (Base me))
+  :: (MonadSafe mi, MonadSafe me)
 
   => NonPipe
 
@@ -909,8 +921,7 @@ pipeInputError out cp = do
 -- | Create a 'Producer' for standard output and a 'Producer' for
 -- standard error.
 pipeOutputError
-  :: ( MonadSafe mo, MonadCatch (Base mo),
-       MonadSafe me, MonadCatch (Base me))
+  :: (MonadSafe mo, MonadSafe me)
 
   => NonPipe
   -- ^ Standard input
@@ -933,9 +944,7 @@ pipeOutputError inp cp = do
 -- | Create a 'Consumer' for standard input, a 'Producer' for standard
 -- output, and a 'Producer' for standard error.
 pipeInputOutputError
-  :: ( MonadSafe mi, MonadCatch (Base mi),
-       MonadSafe mo, MonadCatch (Base mo),
-       MonadSafe me, MonadCatch (Base me))
+  :: (MonadSafe mi, MonadSafe mo, MonadSafe me)
 
   => CreateProcess
 
