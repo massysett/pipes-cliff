@@ -3,3 +3,5 @@ TAGS
 pipes-cliff.cabal
 .cabal-sandbox
 cabal.sandbox.config
+.stack-work/
+stack.yaml
