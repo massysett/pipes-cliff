@@ -184,6 +184,25 @@ data CreateProcess = CreateProcess
   -- ^ See 'System.Process.delegate_ctlc' in the "System.Process"
   -- module for details.
 
+  , detach_console :: Bool
+  -- ^ Use the windows DETACHED_PROCESS flag when creating the
+  -- process; does nothing on other platforms.
+
+  , create_new_console :: Bool
+  -- ^ Use the windows CREATE_NEW_CONSOLE flag when creating the
+  -- process; does nothing on other platforms.
+
+  , new_session :: Bool
+  -- ^ Use posix setsid to start the new process in a new session;
+  -- does nothing on other platforms.
+
+  , child_group :: Maybe GroupID
+  -- ^ Use posix setgid to set child process's group id; does nothing
+  -- on other platforms.
+
+  , child_user :: Maybe UserID
+  -- ^Use posix setuid to set child process's user id; does nothing on other platforms. 
+
   , handler :: Oopsie -> IO ()
   -- ^ Whenever an IO exception arises during the course of various
   -- IO actions, the exception is caught and placed into an 'Oopsie'

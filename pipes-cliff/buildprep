@@ -1,0 +1,5 @@
+#!/bin/sh
+# Generates the project's .cabal file.
+# Must be run with the containing directory as the current directory.
+cd ../gen-pipes-cliff-cabal
+sh buildprep

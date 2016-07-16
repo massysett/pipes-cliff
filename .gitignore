@@ -1,7 +1,5 @@
-dist/
 TAGS
-pipes-cliff.cabal
-.cabal-sandbox
-cabal.sandbox.config
 .stack-work/
-stack.yaml
+dist/
+# Do not track project's cabal file
+pipes-cliff.cabal
