@@ -1,3 +1,8 @@
+# Deprecated
+
+I no longer maintain this library.  There may be bugs in it.
+Use at your own risk.
+
 # pipes-cliff
 
 pipes-cliff helps you spawn subprocesses and send data to and
