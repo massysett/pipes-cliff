@@ -1,7 +1,9 @@
 # Deprecated
 
-I no longer maintain this library.  There may be bugs in it.
-Use at your own risk.
+I no longer maintain this library.  There may be bugs in it.  Getting
+exception-safe interprocess communication right in a general way is
+difficult, and I'm not sure it's a worthwhile problem to solve, so for
+the time being I have given up on it.
 
 # pipes-cliff
 
